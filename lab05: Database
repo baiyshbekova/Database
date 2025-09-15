@@ -1,0 +1,17 @@
+aselbbaiyshbekova@Noutbuk-Asel ~ % psql -h localhost -p 5432 -U aselbbaiyshbekova -d postgres
+
+psql (14.19 (Homebrew))
+Type "help" for help.
+
+postgres=# CREATE DATABASE students;
+CREATE DATABASE
+postgres=# \c students
+You are now connected to database "students" as user "aselbbaiyshbekova".
+students=# \c postgres
+You are now connected to database "postgres" as user "aselbbaiyshbekova".
+postgres=# DROP DATABASE students;
+DROP DATABASE
+postgres=# \q
+aselbbaiyshbekova@Noutbuk-Asel ~ % 
+
+
