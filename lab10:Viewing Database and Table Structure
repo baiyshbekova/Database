@@ -1,0 +1,73 @@
+aselbbaiyshbekova@Noutbuk-Asel ~ % psql -h localhost -p 5432 -U aselbbaiyshbekova -d postgres
+psql (14.19 (Homebrew))
+Type "help" for help.
+
+postgres=# -- Create main tables
+CREATE TABLE students (
+    student_id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    age INTEGER,
+    major VARCHAR(50)
+);
+
+CREATE TABLE courses (
+    course_id SERIAL PRIMARY KEY,
+    course_name VARCHAR(100),
+    credits INTEGER
+);
+
+CREATE TABLE enrollments (
+    enrollment_id SERIAL PRIMARY KEY,
+    student_id INTEGER REFERENCES students(student_id),
+    course_id INTEGER REFERENCES courses(course_id),
+    grade VARCHAR(2)
+);
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+postgres=# \dt
+                    List of relations
+ Schema |        Name         | Type  |       Owner       
+--------+---------------------+-------+-------------------
+ public | authors             | table | aselbbaiyshbekova
+ public | blog_posts          | table | aselbbaiyshbekova
+ public | book_authors        | table | aselbbaiyshbekova
+ public | books               | table | aselbbaiyshbekova
+ public | comments            | table | aselbbaiyshbekova
+ public | course_enrollments  | table | aselbbaiyshbekova
+ public | courses             | table | aselbbaiyshbekova
+ public | customers           | table | aselbbaiyshbekova
+ public | department          | table | aselbbaiyshbekova
+ public | departments         | table | aselbbaiyshbekova
+ public | enrollments         | table | aselbbaiyshbekova
+ public | enrolments_bad      | table | aselbbaiyshbekova
+ public | loans               | table | aselbbaiyshbekova
+ public | members             | table | aselbbaiyshbekova
+ public | orders              | table | aselbbaiyshbekova
+ public | products            | table | aselbbaiyshbekova
+ public | student             | table | aselbbaiyshbekova
+ public | student_enrollments | table | aselbbaiyshbekova
+ public | students            | table | aselbbaiyshbekova
+ public | students_bad_3nf    | table | aselbbaiyshbekova
+ public | students_good       | table | aselbbaiyshbekova
+ public | transactions        | table | aselbbaiyshbekova
+ public | university_students | table | aselbbaiyshbekova
+ public | user_profiles       | table | aselbbaiyshbekova
+ public | users               | table | aselbbaiyshbekova
+(25 rows)
+
+postgres=# \d students
+                                          Table "public.students"
+   Column   |          Type          | Collation | Nullable |                   Default                    
+------------+------------------------+-----------+----------+----------------------------------------------
+ student_id | integer                |           | not null | nextval('students_student_id_seq'::regclass)
+ name       | character varying(100) |           |          | 
+ age        | integer                |           |          | 
+ major      | character varying(50)  |           |          | 
+Indexes:
+    "students_pkey" PRIMARY KEY, btree (student_id)
+Referenced by:
+    TABLE "enrollments" CONSTRAINT "enrollments_student_id_fkey" FOREIGN KEY (student_id) REFERENCES students(student_id)
+
+postgres=# \q
+
