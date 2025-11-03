@@ -1,0 +1,253 @@
+aselbbaiyshbekova@Noutbuk-Asel ~ % psql -h localhost -p 5432 -U aselbbaiyshbekova -d postgres
+psql (14.19 (Homebrew))
+Type "help" for help.
+
+postgres=# -- =====================================================
+-- ART EXHIBITION & GALLERY MANAGEMENT SYSTEM
+-- Database project implemented in PostgreSQL
+-- =====================================================
+
+postgres=# -- Table Creation
+postgres=# CREATE TABLE artists (
+    artist_id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    country VARCHAR(50),
+    birth_year INT,
+    death_year INT,
+    bio TEXT
+);
+
+CREATE TABLE artworks (
+    artwork_id SERIAL PRIMARY KEY,
+    artist_id INT REFERENCES artists(artist_id) ON DELETE CASCADE,
+    title VARCHAR(100) NOT NULL,
+    year_created INT,
+    price NUMERIC(10,2),
+    art_type VARCHAR(50),
+    description TEXT,
+    sold BOOLEAN DEFAULT FALSE
+);
+
+CREATE TABLE exhibitions (
+    exhibition_id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    start_date DATE,
+    end_date DATE,
+    location VARCHAR(100)
+);
+
+CREATE TABLE exhibition_artworks (
+    exhibition_id INT REFERENCES exhibitions(exhibition_id) ON DELETE CASCADE,
+    artwork_id INT REFERENCES artworks(artwork_id) ON DELETE CASCADE,
+    PRIMARY KEY (exhibition_id, artwork_id)
+);
+
+CREATE TABLE visitors (
+    visitor_id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    phone VARCHAR(20)
+);
+
+CREATE TABLE tickets (
+    ticket_id SERIAL PRIMARY KEY,
+    visitor_id INT REFERENCES visitors(visitor_id) ON DELETE CASCADE,
+    exhibition_id INT REFERENCES exhibitions(exhibition_id) ON DELETE CASCADE,
+    purchase_date DATE DEFAULT CURRENT_DATE,
+    price NUMERIC(8,2)
+);
+
+CREATE TABLE sales (
+    sale_id SERIAL PRIMARY KEY,
+    artwork_id INT REFERENCES artworks(artwork_id),
+    visitor_id INT REFERENCES visitors(visitor_id),
+    sale_date DATE DEFAULT CURRENT_DATE,
+    sale_price NUMERIC(10,2)
+);
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+postgres=# -- SAMPLE DATA (INSERT STATEMENTS)
+postgres=# 
+postgres=# -- Insert artists
+INSERT INTO artists (name, country, birth_year, bio) VALUES
+('Vincent van Gogh', 'Netherlands', 1853, 'Post-impressionist painter.'),
+('Claude Monet', 'France', 1840, 'Founder of French Impressionist painting.'),
+('Pablo Picasso', 'Spain', 1881, 'Famous for Cubism and modern art.'),
+('Frida Kahlo', 'Mexico', 1907, 'Known for her self-portraits and symbolism.');
+
+-- Insert artworks
+INSERT INTO artworks (artist_id, title, year_created, price, art_type, description) VALUES
+(1, 'Starry Night', 1889, 2000000.00, 'Painting', 'Depiction of a night sky with swirling patterns.'),
+(2, 'Water Lilies', 1916, 1500000.00, 'Painting', 'Series of impressionist paintings.'),
+(3, 'Les Demoiselles d’Avignon', 1907, 2500000.00, 'Painting', 'Cubist artwork.'),
+(4, 'The Two Fridas', 1939, 1200000.00, 'Painting', 'Symbolic double self-portrait.');
+
+-- Insert exhibitions
+INSERT INTO exhibitions (name, start_date, end_date, location) VALUES
+('Impressionist Masters', '2024-03-01', '2024-04-01', 'Paris Gallery'),
+('Modern Art Collection', '2024-05-15', '2024-06-15', 'New York Museum'),
+('Latin American Art', '2024-07-10', '2024-08-10', 'Mexico City Art Center');
+
+-- Link artworks to exhibitions
+INSERT INTO exhibition_artworks (exhibition_id, artwork_id) VALUES
+(1, 2),
+(2, 3),
+(3, 4),
+(1, 1);
+
+-- Insert visitors
+INSERT INTO visitors (name, email, phone) VALUES
+('Alice Johnson', 'alice@mail.com', '123456789'),
+('Bob Smith', 'bob@mail.com', '987654321'),
+('Carlos Perez', 'carlos@mail.com', '555666777');
+
+-- Insert tickets
+INSERT INTO tickets (visitor_id, exhibition_id, price) VALUES
+(1, 1, 25.00),
+(2, 2, 30.00),
+(3, 3, 20.00),
+(1, 2, 30.00);
+
+-- Insert sales (artwork purchases)
+INSERT INTO sales (artwork_id, visitor_id, sale_price) VALUES
+(1, 1, 2100000.00),
+(3, 2, 2550000.00);
+
+-- Mark sold artworks
+UPDATE artworks SET sold = TRUE WHERE artwork_id IN (1, 3);
+INSERT 0 4
+INSERT 0 4
+INSERT 0 3
+INSERT 0 4
+INSERT 0 3
+INSERT 0 4
+INSERT 0 2
+UPDATE 2
+postgres=# -- EXAMPLE QUERIES
+postgres=# 
+postgres=# -- 1. List all artworks with artist names and prices
+SELECT a.title, ar.name AS artist, a.price, a.sold
+FROM artworks a
+JOIN artists ar ON a.artist_id = ar.artist_id;
+
+-- 2. Most popular artist (by sold artworks)
+SELECT ar.name, COUNT(s.sale_id) AS total_sales
+FROM artists ar
+JOIN artworks aw ON ar.artist_id = aw.artist_id
+JOIN sales s ON s.artwork_id = aw.artwork_id
+GROUP BY ar.name
+ORDER BY total_sales DESC
+LIMIT 1;
+
+-- 3. Total visitors per exhibition
+SELECT e.name AS exhibition, COUNT(t.ticket_id) AS total_visitors
+FROM exhibitions e
+LEFT JOIN tickets t ON e.exhibition_id = t.exhibition_id
+GROUP BY e.name
+ORDER BY total_visitors DESC;
+
+-- 4. Average sale price by art type
+SELECT art_type, AVG(sale_price) AS average_price
+FROM artworks a
+JOIN sales s ON a.artwork_id = s.artwork_id
+GROUP BY art_type;
+
+-- 5. List all unsold artworks
+SELECT title, price FROM artworks WHERE sold = FALSE;
+           title           |      artist      |   price    | sold 
+---------------------------+------------------+------------+------
+ Water Lilies              | Claude Monet     | 1500000.00 | f
+ The Two Fridas            | Frida Kahlo      | 1200000.00 | f
+ Starry Night              | Vincent van Gogh | 2000000.00 | t
+ Les Demoiselles d’Avignon | Pablo Picasso    | 2500000.00 | t
+(4 rows)
+
+       name       | total_sales 
+------------------+-------------
+ Vincent van Gogh |           1
+(1 row)
+
+      exhibition       | total_visitors 
+-----------------------+----------------
+ Modern Art Collection |              2
+ Latin American Art    |              1
+ Impressionist Masters |              1
+(3 rows)
+
+ art_type |    average_price     
+----------+----------------------
+ Painting | 2325000.000000000000
+(1 row)
+
+     title      |   price    
+----------------+------------
+ Water Lilies   | 1500000.00
+ The Two Fridas | 1200000.00
+(2 rows)
+
+postgres=# -- TRANSACTION EXAMPLE: Selling an artwork
+postgres=# BEGIN;
+
+-- Step 1: Check if artwork is already sold
+SELECT sold FROM artworks WHERE artwork_id = 4 FOR UPDATE;
+
+-- Step 2: If not sold, create a sale record
+INSERT INTO sales (artwork_id, visitor_id, sale_price)
+VALUES (4, 3, 1250000.00);
+
+-- Step 3: Update artwork status to "sold"
+UPDATE artworks SET sold = TRUE WHERE artwork_id = 4;
+
+COMMIT;
+BEGIN
+ sold 
+------
+ f
+(1 row)
+
+INSERT 0 1
+UPDATE 1
+COMMIT
+postgres=# -- INDEXES (for performance optimization)
+postgres=# CREATE INDEX idx_artist_name ON artists(name);
+CREATE INDEX idx_exhibition_start_date ON exhibitions(start_date);
+CREATE INDEX idx_artwork_type ON artworks(art_type);
+CREATE INDEX idx_visitor_email ON visitors(email);
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+postgres=# -- END OF PROJECT
+postgres=# \q
+aselbbaiyshbekova@Noutbuk-Asel ~ % >....                                        
+
+COMMIT;
+BEGIN
+ sold
+------
+ f
+(1 row)
+
+INSERT 0 1
+UPDATE 1
+COMMIT
+postgres=# -- INDEXES (for performance optimization)
+postgres=# CREATE INDEX idx_artist_name ON artists(name);
+CREATE INDEX idx_exhibition_start_date ON exhibitions(start_date);
+CREATE INDEX idx_artwork_type ON artworks(art_type);
+CREATE INDEX idx_visitor_email ON visitors(email);
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+postgres=# -- END OF PROJECT
+postgres=# \q
+
+
+
+
