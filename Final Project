@@ -224,29 +224,7 @@ CREATE INDEX
 CREATE INDEX
 postgres=# -- END OF PROJECT
 postgres=# \q
-aselbbaiyshbekova@Noutbuk-Asel ~ % >....                                        
 
-COMMIT;
-BEGIN
- sold
-------
- f
-(1 row)
-
-INSERT 0 1
-UPDATE 1
-COMMIT
-postgres=# -- INDEXES (for performance optimization)
-postgres=# CREATE INDEX idx_artist_name ON artists(name);
-CREATE INDEX idx_exhibition_start_date ON exhibitions(start_date);
-CREATE INDEX idx_artwork_type ON artworks(art_type);
-CREATE INDEX idx_visitor_email ON visitors(email);
-CREATE INDEX
-CREATE INDEX
-CREATE INDEX
-CREATE INDEX
-postgres=# -- END OF PROJECT
-postgres=# \q
 
 
 
